@@ -3,11 +3,15 @@ import {
   View,
   StyleSheet,
   FlatList,
-  SafeAreaView,
   Alert,
   Animated,
+  Dimensions,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { 
+  PaperProvider, 
+  MD3LightTheme as DefaultTheme 
+} from 'react-native-paper';
 
 // 导入组件
 import MessageItem from './components/MessageItem';
@@ -15,7 +19,24 @@ import TypingIndicator from './components/TypingIndicator';
 import ChatHeader from './components/ChatHeader';
 import MessageInput from './components/MessageInput';
 import SettingsModal from './components/SettingsModal';
+import SideMenu from './components/SideMenu';
 import { markdownStyles } from './components/MarkdownStyles';
+
+// Paper主题配置
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#2196F3',
+    secondary: '#1976D2',
+    surface: '#ffffff',
+    background: '#f5f5f5',
+    onSurface: '#333333',
+  },
+};
+
+// 获取屏幕宽度
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function App() {
   const [messages, setMessages] = useState([
@@ -30,9 +51,14 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSideMenu, setShowSideMenu] = useState(false);
   const [streamingMessageId, setStreamingMessageId] = useState(null);
   const flatListRef = useRef(null);
   const typingAnimation = useRef(new Animated.Value(0)).current;
+  
+  // 设置动画值
+  const settingsAnimation = useRef(new Animated.Value(screenWidth)).current;
+
   
   // 设置状态
   const [settings, setSettings] = useState({
@@ -587,9 +613,40 @@ export default function App() {
     }
   };
 
+  // 打开侧边栏
+  const openSideMenu = () => {
+    setShowSideMenu(true);
+  };
+
+  // 关闭侧边栏
+  const closeSideMenu = () => {
+    setShowSideMenu(false);
+  };
+
+  // 打开设置动画
+  const openSettings = () => {
+    setShowSettings(true);
+    Animated.timing(settingsAnimation, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // 关闭设置动画
+  const closeSettings = () => {
+    Animated.timing(settingsAnimation, {
+      toValue: screenWidth,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowSettings(false);
+    });
+  };
+
   const saveSettings = () => {
     Alert.alert('保存成功', '设置已保存！', [
-      { text: '确定', onPress: () => setShowSettings(false) }
+      { text: '确定', onPress: closeSettings }
     ]);
   };
 
@@ -612,57 +669,78 @@ export default function App() {
     }
   };
 
-  if (showSettings) {
-    return (
-      <SettingsModal
-        settings={settings}
-        onClose={() => setShowSettings(false)}
-        onSave={saveSettings}
-        onProviderSettingUpdate={updateProviderSetting}
-        onToggleProvider={toggleProvider}
-        onProviderSelect={handleProviderSelect}
-      />
-    );
-  }
-
   return (
-    <SafeAreaView style={styles.container}>
+    <PaperProvider theme={theme}>
       <StatusBar style="dark" />
       
-      {/* 标题栏 */}
-      <ChatHeader 
-        settings={settings}
-        onSettingsPress={() => setShowSettings(true)}
-      />
+      <View style={styles.container}>
+        {/* 主聊天界面 */}
+        <View style={styles.container}>
+          {/* 标题栏 */}
+          <ChatHeader 
+            settings={settings}
+            onMenuPress={openSideMenu}
+          />
 
-      {/* 消息列表 */}
-      <View style={styles.messagesContainer}>
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={item => item.id}
-          style={styles.messagesList}
-          contentContainerStyle={styles.messagesContent}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={() => 
-            <TypingIndicator 
-              isLoading={isLoading}
-              settings={settings}
-              typingAnimation={typingAnimation}
+          {/* 消息列表 */}
+          <View style={styles.messagesContainer}>
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              renderItem={renderMessage}
+              keyExtractor={item => item.id}
+              style={styles.messagesList}
+              contentContainerStyle={styles.messagesContent}
+              showsVerticalScrollIndicator={false}
+              ListFooterComponent={() => 
+                <TypingIndicator 
+                  isLoading={isLoading}
+                  settings={settings}
+                  typingAnimation={typingAnimation}
+                />
+              }
             />
-          }
-        />
-      </View>
+          </View>
 
-      {/* 输入区域 */}
-      <MessageInput
-        inputText={inputText}
-        setInputText={setInputText}
-        onSendMessage={sendMessage}
-        isLoading={isLoading}
-      />
-    </SafeAreaView>
+          {/* 输入区域 */}
+          <MessageInput
+            inputText={inputText}
+            setInputText={setInputText}
+            onSendMessage={sendMessage}
+            isLoading={isLoading}
+          />
+        </View>
+
+        {/* 侧边栏菜单 - 带动画 */}
+        <SideMenu
+          visible={showSideMenu}
+          onClose={closeSideMenu}
+          onSettingsPress={openSettings}
+          settings={settings}
+        />
+
+        {/* 设置模态框 - 带动画 */}
+        {showSettings && (
+          <Animated.View 
+            style={[
+              styles.settingsContainer,
+              {
+                transform: [{ translateX: settingsAnimation }],
+              },
+            ]}
+          >
+            <SettingsModal
+              settings={settings}
+              onClose={closeSettings}
+              onSave={saveSettings}
+              onProviderSettingUpdate={updateProviderSetting}
+              onToggleProvider={toggleProvider}
+              onProviderSelect={handleProviderSelect}
+            />
+          </Animated.View>
+        )}
+      </View>
+    </PaperProvider>
   );
 }
 
@@ -671,11 +749,9 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   messagesContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   messagesList: {
     flex: 1,
@@ -684,6 +760,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     paddingBottom: 100,
+  },
+
+  settingsContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#fff',
+    elevation: 10,
+    zIndex: 1000,
   },
 });
 

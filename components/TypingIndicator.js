@@ -1,43 +1,79 @@
 import React from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated } from 'react-native';
+import { 
+  Avatar, 
+  Surface, 
+  Text, 
+  useTheme,
+  ActivityIndicator
+} from 'react-native-paper';
 
 const TypingIndicator = ({ isLoading, settings, typingAnimation }) => {
+  const theme = useTheme();
+  
   if (!isLoading) return null;
   
   return (
     <View style={[styles.messageContainer, styles.aiMessageContainer, styles.typingContainer]}>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>
-          {settings.providers[settings.selectedProvider].icon}
-        </Text>
-      </View>
-      <View style={[styles.messageBubble, styles.aiBubble, styles.typingBubble]}>
-        <View style={styles.typingDots}>
-          <Animated.View style={[
-            styles.typingDot,
-            { opacity: typingAnimation }
-          ]} />
-          <Animated.View style={[
-            styles.typingDot,
-            { 
-              opacity: typingAnimation,
-              transform: [{ 
-                scale: typingAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.8, 1.2]
-                })
-              }]
-            }
-          ]} />
-          <Animated.View style={[
-            styles.typingDot,
-            { opacity: typingAnimation }
-          ]} />
+      <Avatar.Text 
+        size={32}
+        label={settings.providers[settings.selectedProvider].icon}
+        style={[
+          styles.avatar,
+          { backgroundColor: theme.colors.surfaceVariant }
+        ]}
+        labelStyle={{ fontSize: 16 }}
+      />
+      <Surface style={[
+        styles.messageBubble, 
+        { backgroundColor: theme.colors.surface }
+      ]} elevation={2}>
+        <View style={styles.typingContent}>
+          <View style={styles.typingDots}>
+            <ActivityIndicator 
+              size="small" 
+              color={theme.colors.primary}
+              style={styles.indicator}
+            />
+            <Animated.View style={[
+              styles.typingDot,
+              { 
+                opacity: typingAnimation,
+                backgroundColor: theme.colors.primary
+              }
+            ]} />
+            <Animated.View style={[
+              styles.typingDot,
+              { 
+                opacity: typingAnimation,
+                backgroundColor: theme.colors.primary,
+                transform: [{ 
+                  scale: typingAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.8, 1.2]
+                  })
+                }]
+              }
+            ]} />
+            <Animated.View style={[
+              styles.typingDot,
+              { 
+                opacity: typingAnimation,
+                backgroundColor: theme.colors.primary
+              }
+            ]} />
+          </View>
+          <Text 
+            variant="bodySmall" 
+            style={[
+              styles.typingText,
+              { color: theme.colors.onSurfaceVariant }
+            ]}
+          >
+            {settings.providers[settings.selectedProvider].name} 正在输入...
+          </Text>
         </View>
-        <Text style={styles.typingText}>
-          {settings.providers[settings.selectedProvider].name} 正在输入...
-        </Text>
-      </View>
+      </Surface>
     </View>
   );
 };
@@ -53,59 +89,35 @@ const styles = StyleSheet.create({
   },
   typingContainer: {
     marginVertical: 8,
-    marginLeft: 40,
   },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 8,
     marginBottom: 4,
   },
-  avatarText: {
-    fontSize: 16,
-  },
   messageBubble: {
-    maxWidth: '75%',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    maxWidth: '70%',
     borderRadius: 18,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
   },
-  aiBubble: {
-    backgroundColor: '#fff',
-    borderBottomLeftRadius: 4,
-  },
-  typingBubble: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
+  typingContent: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    maxWidth: '70%',
-    borderBottomLeftRadius: 4,
   },
   typingDots: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 4,
+  },
+  indicator: {
+    marginRight: 8,
   },
   typingDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#999',
     marginHorizontal: 2,
   },
   typingText: {
-    fontSize: 12,
-    color: '#666',
     textAlign: 'center',
     fontStyle: 'italic',
   },

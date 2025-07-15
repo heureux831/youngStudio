@@ -1,6 +1,12 @@
 import React from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Text } from 'react-native';
+import { 
+  TextInput, 
+  FAB, 
+  Surface, 
+  useTheme,
+  ActivityIndicator
+} from 'react-native-paper';
 
 const MessageInput = ({ 
   inputText, 
@@ -8,96 +14,115 @@ const MessageInput = ({
   onSendMessage, 
   isLoading 
 }) => {
+  const theme = useTheme();
+  
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.inputContainer}
     >
-      <View style={styles.inputWrapper}>
-        <View style={styles.inputRow}>
+      <Surface style={[styles.surface, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.inputWrapper}>
           <View style={styles.textInputContainer}>
             <TextInput
-              style={styles.textInput}
               value={inputText}
               onChangeText={setInputText}
               placeholder="输入消息..."
               multiline
               maxLength={2000}
-              placeholderTextColor="#999"
+              mode="outlined"
+              style={styles.textInput}
+              contentStyle={styles.textInputContent}
+              outlineStyle={styles.textInputOutline}
+              disabled={isLoading}
+              textAlignVertical="top"
+            />
+            <View style={styles.characterCount}>
+              <Text 
+                style={[
+                  styles.characterCountText,
+                  { color: theme.colors.outline }
+                ]}
+              >
+                {inputText.length}/2000
+              </Text>
+            </View>
+          </View>
+          <View style={styles.sendButtonContainer}>
+            <FAB
+              icon={isLoading ? () => <ActivityIndicator color={theme.colors.onPrimary} size={20} /> : "send"}
+              size="small"
+              onPress={onSendMessage}
+              disabled={!inputText.trim() || isLoading}
+              style={[
+                styles.sendButton,
+                {
+                  backgroundColor: (!inputText.trim() || isLoading) 
+                    ? theme.colors.surfaceDisabled 
+                    : theme.colors.primary
+                }
+              ]}
             />
           </View>
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              (!inputText.trim() || isLoading) && styles.sendButtonDisabled
-            ]}
-            onPress={onSendMessage}
-            disabled={!inputText.trim() || isLoading}
-          >
-            <Text style={styles.sendButtonText}>
-              {isLoading ? '⏳' : '➤'}
-            </Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      </Surface>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   inputContainer: {
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: 'transparent',
+  },
+  surface: {
+    elevation: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'flex-end',
   },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    flex: 1,
-  },
   textInputContainer: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 25,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 12,
-    maxHeight: 120,
-    backgroundColor: '#f9f9f9',
+    position: 'relative',
+    marginRight: 8,
   },
   textInput: {
+    minHeight: 48,
+    maxHeight: 96,
+    backgroundColor: 'transparent',
     fontSize: 16,
-    minHeight: 40,
-    textAlignVertical: 'center',
+  },
+  textInputContent: {
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 24, // 为字符计数留出空间
+    textAlignVertical: 'top',
+    lineHeight: 20,
+  },
+  textInputOutline: {
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  characterCount: {
+    position: 'absolute',
+    bottom: 4,
+    right: 14,
+    backgroundColor: 'transparent',
+    pointerEvents: 'none',
+  },
+  characterCountText: {
+    fontSize: 10,
+    opacity: 0.5,
+    fontWeight: '400',
+  },
+  sendButtonContainer: {
+    justifyContent: 'flex-end',
+    paddingBottom: 4,
   },
   sendButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#2196F3',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#ccc',
-    elevation: 0,
-  },
-  sendButtonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    margin: 0,
   },
 });
 

@@ -1,85 +1,63 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View } from 'react-native';
+import { 
+  Appbar, 
+  Text, 
+  Avatar, 
+  Surface, 
+  useTheme 
+} from 'react-native-paper';
 
-const ChatHeader = ({ settings, onSettingsPress }) => {
+const ChatHeader = ({ settings, onMenuPress }) => {
+  const theme = useTheme();
+  const currentProvider = settings.providers[settings.selectedProvider];
+  
   return (
-    <View style={styles.header}>
-      <View style={styles.headerLeft}>
-        <View style={styles.headerAvatar}>
-          <Text style={styles.headerAvatarText}>
-            {settings.providers[settings.selectedProvider].icon}
-          </Text>
+    <Surface style={{ elevation: 4 }}>
+      <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
+        <Appbar.Action 
+          icon="menu"
+          iconColor={theme.colors.onPrimary}
+          onPress={onMenuPress}
+        />
+        <View style={{ 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          flex: 1, 
+          marginLeft: 8 
+        }}>
+          <Avatar.Text 
+            size={40}
+            label={currentProvider.icon}
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              marginRight: 12 
+            }}
+          />
+          <View style={{ flex: 1 }}>
+            <Text 
+              variant="titleMedium" 
+              style={{ 
+                color: theme.colors.onPrimary,
+                fontWeight: 'bold' 
+              }}
+            >
+              AI 聊天助手
+            </Text>
+            <Text 
+              variant="bodySmall" 
+              style={{ 
+                color: 'rgba(255, 255, 255, 0.8)',
+                marginTop: 2 
+              }}
+            >
+              {currentProvider.name} • {currentProvider.selectedModel}
+            </Text>
+          </View>
         </View>
-        <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle}>AI 聊天助手</Text>
-          <Text style={styles.headerSubtitle}>
-            {settings.providers[settings.selectedProvider].name} • {settings.providers[settings.selectedProvider].selectedModel}
-          </Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={styles.settingsButton}
-        onPress={onSettingsPress}
-      >
-        <Text style={styles.settingsText}>⚙️</Text>
-      </TouchableOpacity>
-    </View>
+      </Appbar.Header>
+    </Surface>
   );
 };
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#2196F3',
-    borderBottomWidth: 1,
-    borderBottomColor: '#1976D2',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  headerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  headerAvatarText: {
-    fontSize: 20,
-  },
-  headerInfo: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 2,
-  },
-  settingsButton: {
-    padding: 8,
-    borderRadius: 20,
-  },
-  settingsText: {
-    fontSize: 18,
-  },
-});
 
 export default ChatHeader; 

@@ -10,19 +10,32 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2196F3"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mystudio.aichat"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#2196F3"
+      },
+      "package": "com.mystudio.aichat",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "SYSTEM_ALERT_WINDOW"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2c596d46-13df-4178-8f95-e76db148d281"
+      }
+    },
+    "description": "一个功能丰富的AI聊天应用，支持多个AI供应商，具有Telegram风格的现代化界面。"
   }
 }
