@@ -33,9 +33,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "2c596d46-13df-4178-8f95-e76db148d281"
+        "projectId": "YOUR_PROJECT_ID_HERE"
       }
     },
     "description": "一个功能丰富的AI聊天应用，支持多个AI供应商，具有Telegram风格的现代化界面。"
   }
-}
+} 

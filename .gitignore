@@ -38,3 +38,6 @@ yarn-error.*
 
 # build
 BUILD_GUIDE.md
+
+# Configuration files with sensitive information
+app.json
